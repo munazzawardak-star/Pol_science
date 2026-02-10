@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Political Science Dashboard 2026</title>
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --secondary: #10b981;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        h1 { margin: 0; font-size: 1.8rem; color: var(--primary); }
+        .subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            border: 1px solid #334155;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .stat-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* Progress Section */
+        .progress-section {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border: 1px solid #334155;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .progress-track {
+            background: #334155;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease-out;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        input[type="number"] {
+            background: #0f172a;
+            border: 1px solid #475569;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            width: 80px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+
+        button:active { transform: scale(0.98); }
+
+        .btn-add { background: var(--primary); color: white; }
+        .btn-reset { background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 0.8rem; padding: 8px 15px;}
+
+        /* Syllabus Accordion */
+        .syllabus-section { margin-top: 30px; }
+        .section-title { font-size: 1.2rem; margin-bottom: 15px; border-left: 4px solid var(--secondary); padding-left: 10px; }
+
+        .topic-group {
+            background: var(--card-bg);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .group-header {
+            padding: 15px 20px;
+            background: #252f42;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .group-header:hover { background: #2d3b52; }
+        
+        .topic-list {
+            padding: 0;
+            margin: 0;
+            display: none; /* Hidden by default */
+        }
+
+        .topic-list.active { display: block; }
+
+        .topic-item {
+            padding: 12px 20px;
+            border-top: 1px solid #334155;
+            display: flex;
+            align-items: center;
+            transition: background 0.2s;
+        }
+
+        .topic-item:hover { background: #1e293b; }
+
+        .topic-item label {
+            flex-grow: 1;
+            cursor: pointer;
+            margin-left: 12px;
+            user-select: none;
+        }
+
+        .topic-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--secondary);
+            cursor: pointer;
+        }
+
+        .completed-topic {
+            text-decoration: line-through;
+            color: var(--text-muted);
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; width: 100%; }
+            input[type="number"], .btn-add { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Political Science Tracker</h1>
+        <div class="subtitle">Mission 2026: Feb 11 to May 11</div>
+    </header>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-value" id="days-left">0</span>
+            <span class="stat-label">Days Left</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="hours-remaining" style="color: var(--secondary);">204</span>
+            <span class="stat-label">Hours Goal</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-value" id="completion-rate">0%</span>
+            <span class="stat-label">Syllabus Done</span>
+        </div>
+    </div>
+
+    <div class="progress-section">
+        <div class="progress-header">
+            <span>Total Study Progress</span>
+            <span id="hours-studied-display">0 / 204 Hrs</span>
+        </div>
+        <div class="progress-track">
+            <div class="progress-fill" id="main-progress"></div>
+        </div>
+        
+        <div class="controls">
+            <input type="number" id="session-input" placeholder="Hours" step="0.5" min="0">
+            <button class="btn-add" onclick="logSession()">+ Log Study Session</button>
+            <div style="flex-grow: 1;"></div>
+            <button class="btn-reset" onclick="hardReset()">Reset All</button>
+        </div>
+    </div>
+
+    <div class="syllabus-section">
+        <h2 class="section-title">Paper I: Political Theory (110 Hrs)</h2>
+        <div id="paper1-container"></div>
+
+        <h2 class="section-title">Paper II: Comparative & Pakistan (94 Hrs)</h2>
+        <div id="paper2-container"></div>
+    </div>
+</div>
+
+<script>
+    // --- CONFIGURATION ---
+    const CONFIG = {
+        targetDate: new Date("May 11, 2026 00:00:00").getTime(),
+        totalHours: 204
+    };
+
+    // --- SYLLABUS DATA ---
+    const paper1Data = [
+        {
+            title: "Western Political Thought (48 Hrs)",
+            topics: [
+                "Plato: Republic, Justice, Education (6h)",
+                "Aristotle: State, Slavery, Revolution (6h)",
+                "Machiavelli: The Prince, Ethics vs Politics (5h)",
+                "Hobbes: Leviathan, Social Contract (4h)",
+                "Locke: Natural Rights, Limited Govt (4h)",
+                "Rousseau: General Will (4h)",
+                "Montesquieu: Separation of Powers (3h)",
+                "Bentham & Mill: Utilitarianism (6h)",
+                "Karl Marx: Dialectical Materialism (6h)",
+                "Hegel & Lenin: Dialectics, Imperialism (4h)"
+            ]
+        },
+        {
+            title: "Muslim Political Thought (18 Hrs)",
+            topics: [
+                "Al-Farabi: Ideal State (3h)",
+                "Al-Mawardi: Theory of Imamat (3h)",
+                "Al-Ghazali: Religion & Politics (3h)",
+                "Ibn Khaldun: Asabiyyah (5h)",
+                "Allama Iqbal: Khudi, Ijtihad (4h)"
+            ]
+        },
+        {
+            title: "Political Concepts (44 Hrs)",
+            topics: [
+                "Sovereignty: Western vs Islamic (6h)",
+                "State Systems: Welfare vs Nation-State (6h)",
+                "Rights & Liberty: Safeguards (6h)",
+                "Forms of Govt: Democracy vs Dictatorship (8h)",
+                "Ideologies: Capitalism, Socialism, Fascism (10h)",
+                "Local Govt: Pakistan vs India System (8h)"
+            ]
+        }
+    ];
+
+    const paper2Data = [
+        {
+            title: "World Constitutions (38 Hrs)",
+            topics: [
+                "UK System: Parliament, PM, Crown (8h)",
+                "USA System: President, Congress, Judiciary (8h)",
+                "Comparative: UK PM vs US President (4h)",
+                "France: 5th Republic (4h)",
+                "Turkey & China: Presidency, NPC (6h)",
+                "India & Switzerland: Secularism, Direct Democracy (8h)"
+            ]
+        },
+        {
+            title: "Pakistan Political History (40 Hrs)",
+            topics: [
+                "Pre-Partition: 1935 Act, Lahore Resolution (8h)",
+                "Constitutional History: 1956 & 1962 Failures (8h)",
+                "1973 Constitution: Detailed Articles (12h)",
+                "18th Amendment: Prov. Autonomy (6h)",
+                "Institutions: Civil-Military, Judiciary (6h)"
+            ]
+        },
+        {
+            title: "International Relations (16 Hrs)",
+            topics: [
+                "Foreign Policy Determinants (8h)",
+                "Organizations: UN, SAARC, ECO, SCO (8h)"
+            ]
+        }
+    ];
+
+    // --- APP STATE ---
+    let appState = {
+        hoursDone: 0,
+        completedTopics: [] // stores IDs of checked topics
+    };
+
+    // --- INITIALIZATION ---
+    function init() {
+        loadState();
+        renderCountdown();
+        renderSyllabus('paper1-container', paper1Data, 1);
+        renderSyllabus('paper2-container', paper2Data, 2);
+        updateUI();
+        
+        // Start Timer Interval
+        setInterval(renderCountdown, 1000 * 60); // Update every minute
+    }
+
+    // --- RENDERING ---
+    function renderSyllabus(containerId, data, paperId) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        data.forEach((group, gIndex) => {
+            const groupId = `p${paperId}-g${gIndex}`;
+            
+            // Create Header
+            const header = document.createElement('div');
+            header.className = 'group-header';
+            header.innerHTML = `<span>${group.title}</span> <span>▼</span>`;
+            header.onclick = () => toggleGroup(groupId);
+
+            // Create List
+            const list = document.createElement('div');
+            list.className = 'topic-list';
+            list.id = `${groupId}-list`;
+            // Open first group by default for usability
+            if(gIndex === 0 && paperId === 1) list.classList.add('active');
+
+            group.topics.forEach((topic, tIndex) => {
+                const topicId = `${groupId}-t${tIndex}`;
+                const isChecked = appState.completedTopics.includes(topicId);
+                
+                const item = document.createElement('div');
+                item.className = 'topic-item';
+                item.innerHTML = `
+                    <input type="checkbox" id="${topicId}" ${isChecked ? 'checked' : ''} onchange="toggleTopic('${topicId}')">
+                    <label for="${topicId}" class="${isChecked ? 'completed-topic' : ''}">${topic}</label>
+                `;
+                list.appendChild(item);
+            });
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'topic-group';
+            wrapper.appendChild(header);
+            wrapper.appendChild(list);
+            container.appendChild(wrapper);
+        });
+    }
+
+    function toggleGroup(groupId) {
+        const list = document.getElementById(`${groupId}-list`);
+        list.classList.toggle('active');
+    }
+
+    // --- LOGIC ---
+    function renderCountdown() {
+        const now = new Date().getTime();
+        const diff = CONFIG.targetDate - now;
+        
+        if (diff > 0) {
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            document.getElementById('days-left').innerText = days;
+        } else {
+            document.getElementById('days-left').innerText = "0";
+        }
+    }
+
+    function logSession() {
+        const input = document.getElementById('session-input');
+        const hours = parseFloat(input.value);
+        
+        if (hours && hours > 0) {
+            appState.hoursDone += hours;
+            if(appState.hoursDone > CONFIG.totalHours) appState.hoursDone = CONFIG.totalHours;
+            saveState();
+            updateUI();
+            input.value = '';
+        }
+    }
+
+    function toggleTopic(id) {
+        const label = document.querySelector(`label[for="${id}"]`);
+        
+        if (appState.completedTopics.includes(id)) {
+            appState.completedTopics = appState.completedTopics.filter(t => t !== id);
+            label.classList.remove('completed-topic');
+        } else {
+            appState.completedTopics.push(id);
+            label.classList.add('completed-topic');
+        }
+        saveState();
+        updateCompletionRate();
+    }
+
+    function updateUI() {
+        // Hours
+        document.getElementById('hours-studied-display').innerText = `${appState.hoursDone.toFixed(1)} / ${CONFIG.totalHours} Hrs`;
+        document.getElementById('hours-remaining').innerText = (CONFIG.totalHours - appState.hoursDone).toFixed(0);
+        
+        // Progress Bar
+        const percent = (appState.hoursDone / CONFIG.totalHours) * 100;
+        document.getElementById('main-progress').style.width = `${percent}%`;
+
+        updateCompletionRate();
+    }
+
+    function updateCompletionRate() {
+        // Calculate total items vs checked items
+        let totalItems = 0;
+        paper1Data.forEach(g => totalItems += g.topics.length);
+        paper2Data.forEach(g => totalItems += g.topics.length);
+        
+        const checkedCount = appState.completedTopics.length;
+        const rate = Math.round((checkedCount / totalItems) * 100);
+        
+        document.getElementById('completion-rate').innerText = `${rate}%`;
+    }
+
+    // --- STORAGE ---
+    function saveState() {
+        localStorage.setItem('cssPolSci2026', JSON.stringify(appState));
+    }
+
+    function loadState() {
+        const saved = localStorage.getItem('cssPolSci2026');
+        if (saved) {
+            appState = JSON.parse(saved);
+        }
+    }
+
+    function hardReset() {
+        if(confirm("Start fresh? This will erase all your progress.")) {
+            localStorage.removeItem('cssPolSci2026');
+            appState = { hoursDone: 0, completedTopics: [] };
+            // Reload page to refresh DOM states cleanly
+            location.reload(); 
+        }
+    }
+
+    // Start App
+    init();
+
+</script>
+</body>
+</html>
